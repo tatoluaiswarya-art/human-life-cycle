@@ -1,0 +1,105 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Human Life Journey</title>
+<style>
+  :root { --accent:#4f46e5; --muted:#d1d5db; --text:#111827; --bg:#ffffff; }
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text);padding:20px}
+  .wrap{max-width:900px;margin:auto}
+  h1{font-size:1.25rem;margin:0 0 8px}
+  .sub{color:#6b7280;margin:0 0 16px;font-size:.95rem}
+  .ctrl{display:flex;gap:12px;align-items:center;margin:10px 0 18px}
+  input[type=range]{flex:1}
+  .age{min-width:3.5ch;text-align:right;font-variant-numeric:tabular-nums}
+  .timeline{position:relative;margin:24px 0 8px}
+  .rail{height:4px;background:var(--muted);border-radius:999px}
+  .fill{height:4px;background:var(--accent);border-radius:999px;position:absolute;top:0;left:0;width:0}
+  .stops{display:flex;justify-content:space-between;position:relative;top:-10px}
+  .stop{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+  .dot{width:14px;height:14px;background:var(--muted);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px var(--muted);transition:.2s}
+  .stop.active .dot{background:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .label{font-size:.75rem;text-align:center;line-height:1.1}
+  .label small{display:block;color:#6b7280;font-size:.7rem}
+  .phase{margin-top:8px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;font-size:.95rem}
+  @media (max-width:520px){ .label span{display:none} .label small{display:inline} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Human Life Journey</h1>
+  <p class="sub">Move the slider to visualize milestones across a lifetime.</p>
+
+  <div class="ctrl">
+    <label for="age">Age:</label>
+    <input id="age" type="range" min="0" max="100" value="24" />
+    <div class="age"><span id="ageVal">24</span></div>
+  </div>
+
+  <div class="timeline" aria-hidden="true">
+    <div class="rail"></div>
+    <div class="fill" id="fill"></div>
+    <div class="stops" id="stops">
+      <!-- data-age defines milestone age; emoji keeps it fun & tiny -->
+      <div class="stop" data-age="0"><div class="dot"></div><div class="label">?? <span>Birth</span><small>0</small></div></div>
+      <div class="stop" data-age="5"><div class="dot"></div><div class="label">?? <span>Childhood</span><small>5</small></div></div>
+      <div class="stop" data-age="12"><div class="dot"></div><div class="label">?? <span>School</span><small>12</small></div></div>
+      <div class="stop" data-age="18"><div class="dot"></div><div class="label">?? <span>Graduation</span><small>18</small></div></div>
+      <div class="stop" data-age="25"><div class="dot"></div><div class="label">?? <span>Career</span><small>25</small></div></div>
+      <div class="stop" data-age="30"><div class="dot"></div><div class="label">?? <span>Partnership</span><small>30</small></div></div>
+      <div class="stop" data-age="35"><div class="dot"></div><div class="label">?? <span>Parenthood</span><small>35</small></div></div>
+      <div class="stop" data-age="50"><div class="dot"></div><div class="label">?? <span>Midlife</span><small>50</small></div></div>
+      <div class="stop" data-age="65"><div class="dot"></div><div class="label">??? <span>Transition</span><small>65</small></div></div>
+      <div class="stop" data-age="80"><div class="dot"></div><div class="label">?? <span>Legacy</span><small>80</small></div></div>
+    </div>
+  </div>
+
+  <div class="phase" id="phase" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+  const ageInput = document.getElementById('age');
+  const ageVal   = document.getElementById('ageVal');
+  const fill     = document.getElementById('fill');
+  const stops    = [...document.getElementById('stops').children];
+  const phaseBox = document.getElementById('phase');
+
+  const phases = [
+    {min:0,  max:4,  text:"Early years — rapid growth, bonding, play."},
+    {min:5,  max:11, text:"Childhood — curiosity, basics, making friends."},
+    {min:12, max:17, text:"Adolescence — identity, skills, exploration."},
+    {min:18, max:24, text:"Young adult — study, first jobs, independence."},
+    {min:25, max:34, text:"Building — career focus, relationships, home."},
+    {min:35, max:49, text:"Expansion — parenting/mentoring, mastery."},
+    {min:50, max:64, text:"Midlife — reflection, pivot, wellbeing."},
+    {min:65, max:79, text:"Retirement transition — freedom, purpose."},
+    {min:80, max:100,text:"Legacy — wisdom, stories, community."}
+  ];
+
+  function update() {
+    const age = +ageInput.value;
+    ageVal.textContent = age;
+
+    // Highlight milestones up to current age
+    stops.forEach((s, i) => {
+      const milestoneAge = +s.dataset.age;
+      s.classList.toggle('active', age >= milestoneAge);
+    });
+
+    // Update fill width
+    const pct = Math.min(100, Math.max(0, age)); // 0–100
+    fill.style.width = pct + "%";
+
+    // Current phase text
+    const ph = phases.find(p => age >= p.min && age <= p.max) || phases.at(-1);
+    phaseBox.textContent = `Current phase: Age ${age} — ${ph.text}`;
+  }
+
+  ageInput.addEventListener('input', update);
+  addEventListener('load', update);
+</script>
+</body>
+</html>
